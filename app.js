@@ -13,11 +13,50 @@ const { authenticate } = require('ldap-authentication')
  var client = ldap.createClient({
     url: 'ldap://localhost:389'
 });
-const storage = require('express-session')
+var session = require('express-session');
+
+// middleware
+app.use(express.urlencoded({ extended: false }))
+app.use(session({
+  resave: false, // don't save session if unmodified
+  saveUninitialized: false, // don't create session until something stored
+  secret: 'secret'
+}));
+
+// Session-persisted message middleware
+
+app.use(function(req, res, next){
+  var flag =req.session.flag;
+  var err = req.session.error;
+  var msg = req.session.success;
+  delete req.session.error;
+  delete req.session.success;
+  delete req.session.flag;
+  res.locals.message = '';
+  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
+  if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
+  next();
+});
+
+
+
+function restrict(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    req.session.error = 'Access denied!';
+    res.sendFile(path.join(intialPath, "login.html"));
+    res.redirect('/login');
+  }
+}
+
+app.get('/restricted', restrict, function(req, res){
+  res.send('Wahoo! restricted area, click to <a href="/logout">logout</a>');
+});
 
 
 /*use this to create connection*/
-function authenticateDN(username, password) {
+function authenticateDN(username, password,req,res) {
 
     /*bind use for authentication*/
     client.bind(username, password, function (err) {
@@ -26,7 +65,16 @@ function authenticateDN(username, password) {
         } else {
             /*if connection is success then go for any operation*/
             console.log("Success");
-            storage.success = true;
+           //  req.session.user = true;
+          // $("#p1").text("Login = true");
+          let c = document.querySelector('#p1');
+          c.innerHTML='<h1>login = true </h1>';
+        req.session.success = 'Authenticated as ' + user
+          + ' click to <a href="/logout">logout</a>. '
+          + ' You may now access <a href="/restricted">/restricted</a>.';
+          req.session.flag=true;
+        res.redirect('back');
+           // storage.success = true;
           //document.getElementById("p1").innerHTML = "Login = true!";
            
 
@@ -34,11 +82,17 @@ function authenticateDN(username, password) {
     });
 }
 
+
+
+
+
+
 async function auth() {
   // auth with admin
   let options = {
     ldapOpts: {
       url: 'ldap://localhost:389',
+      // tlsOptions: { rejectUnauthorized: false }
     },
     adminDn: 'cn=admin,dc=openstack,dc=org',
     adminPassword: 'password',
@@ -46,6 +100,7 @@ async function auth() {
     userSearchBase: 'dc=openstack,dc=org',
     usernameAttribute: 'uid',
     username: 'admin',
+    // starttls: false
   }
 
   let admin = await authenticate(options)
@@ -55,12 +110,14 @@ async function auth() {
   options = {
     ldapOpts: {
       url: 'ldap://localhost:389/',
+      // tlsOptions: { rejectUnauthorized: false }
     },
     userDn: 'cn=johny,ou=Users,dc=openstack,dc=org',
     userPassword: 'password',
     userSearchBase: 'ou=Users,dc=openstack,dc=org',
     usernameAttribute: 'uid',
     username: 'johny',
+    // starttls: false
   }
 
   user = await authenticate(options)
@@ -68,6 +125,10 @@ async function auth() {
  
   
 }
+
+
+let intialPath = path.join(__dirname, "public");
+app.use(express.static(intialPath));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -89,7 +150,7 @@ let authenticated =  authenticate({
   username: user,
 })
 
-  authenticateDN("cn=johny,ou=Users,dc=openstack,dc=org",pass);
+  authenticateDN("cn=johny,ou=Users,dc=openstack,dc=org",pass,req,res);
  // auth with regular user
   options = {
     ldapOpts: {
@@ -102,6 +163,8 @@ let authenticated =  authenticate({
     usernameAttribute: 'uid',
     username: user,
   }
+
+  
 })
 
 auth()
@@ -133,7 +196,7 @@ app.post('/register-user', (req, res) => {
     if(!name.length || !email.length || !password.length){
         res.json('fill all the fields');
     } else{
-        db("users").insert({
+      /*  db("users").insert({
             name: name,
             email: email,
             password: password
@@ -146,9 +209,7 @@ app.post('/register-user', (req, res) => {
             if(err.detail.includes('already exists')){
                 res.json('email already exists');
             }
-        })
+        })*/
     }
 })
-
-
 

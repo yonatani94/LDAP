@@ -18,10 +18,22 @@
         <h1 class="heading">Login LDAP</h1>
         <input type="userName" placeholder="userName" autocomplete="off" class="userName" id="username">
         <input type="password" placeholder="password" autocomplete="off" class="password" id="pass">
-        <button class="submit-btn">Log In</button>
-            <p id="p1">Login = false <center> </center></p>
+        <button id = "btn" class="submit-btn">Log In</button>
+         <h1 id="p1"> Login = false  </div>
     </div>
+        <script>
 
+            $("#p1").text($("#p1").text().replace("False", "True"));
+            document.getElementById("p1").innerHTML = false;
+           $(document).ready(function() {
+    $('#p1').text(function(i, oldText) {
+        return oldText === 'Profil' ? 'Login = true' : oldText;
+    });
+});
+            
+
+        </script>
+        
     <script src="js/form.js"></script>
     
 </body>

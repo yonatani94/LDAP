@@ -12,6 +12,8 @@
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
+    "jQuery": "^1.7.4",
+    "jquery": "^3.6.0",
     "knex": "^0.95.14",
     "ldap-authentication": "^2.2.9",
     "ldapjs": "^2.3.1",
