@@ -18,7 +18,7 @@ const name = document.querySelector('.name') || null;
 const userName = document.querySelector('.userName');
 const password = document.querySelector('.password');
 const submitBtn = document.querySelector('.submit-btn');
-
+var text = document.querySelector('.p1');
 if(name == null){ // means login page is open
     submitBtn.addEventListener('click', () => {
         fetch('/login-user',{
@@ -46,10 +46,8 @@ if(name == null){ // means login page is open
                 password: password.value
             })
         })
-        .then(res => res.json())
-        .then(data => {
-            validateData(data);
-        })
+
+        
     })
 
 }

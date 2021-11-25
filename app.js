@@ -14,6 +14,7 @@ const { authenticate } = require('ldap-authentication')
     url: 'ldap://localhost:389'
 });
 var session = require('express-session');
+const { stringify } = require('querystring');
 
 // middleware
 app.use(express.urlencoded({ extended: false }))
@@ -65,14 +66,23 @@ function authenticateDN(username, password,req,res) {
         } else {
             /*if connection is success then go for any operation*/
             console.log("Success");
+            
+           // myFunc();
            //  req.session.user = true;
           // $("#p1").text("Login = true");
-          let c = document.querySelector('#p1');
-          c.innerHTML='<h1>login = true </h1>';
+         // let c = document.querySelector('#p1');
+         // c.innerHTML='<h1>login = true </h1>';
         req.session.success = 'Authenticated as ' + user
           + ' click to <a href="/logout">logout</a>. '
           + ' You may now access <a href="/restricted">/restricted</a>.';
           req.session.flag=true;
+          if(req.session.flag)
+          {
+            console.log("test me");
+             //res.sendFile(path.join(intialPath, "index.html"));
+       //     res.redirect('/index')
+          }
+          console.log(req.session.flag);
         res.redirect('back');
            // storage.success = true;
           //document.getElementById("p1").innerHTML = "Login = true!";
@@ -85,7 +95,14 @@ function authenticateDN(username, password,req,res) {
 
 
 
-
+/*function myFunc()
+{
+  console.log("it is a test");
+  var text = "  ";
+  return (<div className="test"> 
+      <p>  Login Success    </p>
+  </div> )
+}*/
 
 async function auth() {
   // auth with admin
@@ -149,6 +166,7 @@ let authenticated =  authenticate({
   usernameAttribute: 'uid',
   username: user,
 })
+console.log("object is " +(authenticated.stringify));
 
   authenticateDN("cn=johny,ou=Users,dc=openstack,dc=org",pass,req,res);
  // auth with regular user
