@@ -1,6 +1,6 @@
 module.exports = {
   ldap: {
-    dn: 'dc=example,dc=com',
-    url: 'ldap://ldap.forumsys.com'
+    dn: 'ou=Users,dc=openstack,dc=org',
+    url: 'ldap://localhost:389'
   }
 }

@@ -34,7 +34,7 @@ passport.use('ldap', new CustomStrategy(
         // note in this example it only use the user to directly
         // bind to the LDAP server. You can also use an admin
         // here. See the document of ldap-authentication.
-        userDn: `uid=${req.body.username},${ldapBaseDn}`,
+        userDn: `cn=${req.body.username},${ldapBaseDn}`,
         userPassword: req.body.password,
         userSearchBase: ldapBaseDn,
         usernameAttribute: 'uid',
@@ -110,6 +110,6 @@ app.get('/', function (req, res) {
 })
 
 // Start server
-let port = 4000
+let port = 3000
 console.log(`app is listening on port ${port}`)
-app.listen(port, '127.0.0.1')
+app.listen(port, 'localhost')
