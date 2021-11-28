@@ -79,7 +79,7 @@ node index.js
 
 go to 
 ```sh
-localhost:3000/login
+localhost:3000/
 ```
 Then try login with userName  & Password
 
