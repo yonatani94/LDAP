@@ -72,6 +72,38 @@ now you can see the list of users in the OpenLDAP with the command:
 ldapsearch -H ldap://localhost -LL -b ou=Users,dc=openstack,dc=org -x
 ```
 
+Add User Yourself
+
+```sh
+nano /ldap/more.ldif
+```
+
+Customize your own data
+
+```sh
+dn: cn=demo Cai,ou=Users,dc=openstack,dc=org
+objectclass: inetOrgPerson
+cn: demo user
+sn: demo
+uid: demo
+userpassword: demo
+carlicense: A 123
+homephone: 555-555-2222
+mail: demo@gmail.com
+description: demo guy
+ou: Development Department  
+```
+
+
+The file will be added by command
+
+```sh
+ldapadd -x -D cn=admin,dc=openstack,dc=org -w password -c -f more.ldif
+```
+
+
+
+
 Run The Application with commant node (Node JS required)
 ```sh
 node index.js
@@ -81,7 +113,7 @@ go to
 ```sh
 localhost:3000/
 ```
-Then try login with userName  & Password From The List ldapsearch.
+Then try login with userName  & Password From The List ldapsearch Or User that you created previously.
 
 
 Now You transfer to Google Authentication Page:
