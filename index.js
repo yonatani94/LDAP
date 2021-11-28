@@ -10,6 +10,14 @@ const passport = require('passport')
 const CustomStrategy = require('passport-custom').Strategy
 const { authenticate } = require('ldap-authentication')
 
+const cookieParser = require('cookie-parser')
+
+
+// Google Auth
+const {OAuth2Client} = require('google-auth-library');
+const CLIENT_ID = '1091153796944-2hbv7fifcbuvhdlo85i038f41s05vgr8.apps.googleusercontent.com'
+const client = new OAuth2Client(CLIENT_ID);
+
 /**
  * Create the passport custom stragegy and name it `ldap`
  * 
@@ -73,6 +81,17 @@ app.use(sessionMiddleWare)
 app.use(passport.initialize())
 app.use(passport.session())
 
+
+
+/// 2f auth
+app.use(cookieParser());
+
+app.use(express.json());
+
+
+////
+
+
 // web page template
 app.set('view engine', 'pug')
 
@@ -80,9 +99,39 @@ app.set('view engine', 'pug')
 app.post('/login',
   passport.authenticate('ldap', { failureRedirect: '/login' }),
   function (req, res) {
-    res.redirect('/success');
+    res.render('start');
   }
 )
+
+
+app.get('/login1', (req,res)=>{
+    res.render('login1');
+})
+
+app.post('/login1', (req,res)=>{
+    let token = req.body.token;
+
+    async function verify() {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
+      }
+      verify()
+      .then(()=>{
+          res.cookie('session-token', token);
+          res.send('success')
+      })
+      .catch(console.error);
+
+})
+
+
+
+
+
 
 // success page
 app.get('/success', (req, res) => {
@@ -95,6 +144,7 @@ app.get('/success', (req, res) => {
     {
       userDisplayName: user.cn,
       userObject: JSON.stringify(user, null, 2)
+      
     })
 })
 
@@ -108,6 +158,51 @@ app.get('/logout', (req, res) => {
 app.get('/', function (req, res) {
   res.render('index', { title: 'Hey', message: 'Hello there!' })
 })
+
+app.get('/profile', checkAuthenticated, (req, res)=>{
+    let user = req.user;
+    res.render('profile', {user});
+})
+
+app.get('/protectedRoute', checkAuthenticated, (req,res)=>{
+    res.send('This route is protected')
+})
+
+app.get('/logout', (req, res)=>{
+    res.clearCookie('session-token');
+    res.redirect('/login')
+
+})
+
+
+function checkAuthenticated(req, res, next){
+
+    let token = req.cookies['session-token'];
+
+    let user = {};
+    async function verify() {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        user.name = payload.name;
+        user.email = payload.email;
+        user.picture = payload.picture;
+      }
+      verify()
+      .then(()=>{
+          req.user = user;
+          next();
+      })
+      .catch(err=>{
+          res.redirect('/login1')
+      })
+
+}
+
+
+
 
 // Start server
 let port = 3000
