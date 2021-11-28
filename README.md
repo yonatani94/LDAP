@@ -35,6 +35,7 @@ This library use `ldapjs` as the underneath library. It has two modes of authent
 
 ### Installation
 
+Start With
 ```sh
 npm init
 ```
@@ -46,7 +47,7 @@ npm install ldap-authentication --save
 pull openLDAP image with docker
 
 ```sh
-pull openLDAP image with docker
+docker pull larrycai/openldap
 ```
 
 Run OpenLDAP docker image:
@@ -73,7 +74,7 @@ ldapsearch -H ldap://localhost -LL -b ou=Users,dc=openstack,dc=org -x
 
 Run The Application with commant node (Node JS required)
 ```sh
-node app.js
+node index.js
 ```
 
 go to 
