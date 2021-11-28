@@ -81,7 +81,8 @@ go to
 ```sh
 localhost:3000/
 ```
-Then try login with userName  & Password
+Then try login with userName  & Password From The List ldapsearch.
+
 
 Now You transfer to Google Authentication Page:
 
